@@ -1,0 +1,12 @@
+default:
+    extensions:
+
+        Laracasts\Behat\ServiceContainer\BehatExtension: ~
+        Ulff\BehatRestApiExtension\ServiceContainer\BehatRestApiExtension: ~
+
+
+        Behat\MinkExtension\ServiceContainer\MinkExtension:
+            default_session: laravel
+            base_url: http://localhost:8000/
+            laravel: ~
+
