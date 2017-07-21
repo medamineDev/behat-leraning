@@ -8,8 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\MinkContext;
 use GuzzleHttp\Client;
 use App\User;
-
-
+use \Illuminate\Support\Facades\Auth;
 use Ulff\BehatRestApiExtension\Context\RestApiContext;
 
 
@@ -113,12 +112,19 @@ class FeatureContext extends RestApiContext implements Context
 
         if ($user) {
 
-            \Illuminate\Support\Facades\Auth::loginUsingId($user->id);
+            Auth::loginUsingId($user->id);
+
+            if(!Auth::user()->id){
+                throw new Exception(
+                    "the use not logged In:\n" . $this->output
+                );
+
+            }
 
         }else{
 
             throw new Exception(
-                "Actual output is:\n" . $this->output
+                "logged user not found :\n" . $this->output
             );
 
         }
@@ -126,6 +132,34 @@ class FeatureContext extends RestApiContext implements Context
 
 
 
+    }
+
+    public function spin ($lambda)
+    {
+        while (true)
+        {
+            try {
+                if ($lambda($this)) {
+                    return true;
+                }
+            } catch (Exception $e) {
+                // do nothing
+            }
+
+
+
+        }
+    }
+
+    /** @Then /^I press using id  "(?P<string>(?:[^"]|\\")*)"$/  */
+    public function pressUsingId($string)
+    {
+
+        $this->spin(function($context)use($string) {
+
+            $context->getSession()->getPage()->findById($string)->click();
+            return true;
+        });
     }
 
     /** @Then I am logged in */
@@ -147,6 +181,18 @@ class FeatureContext extends RestApiContext implements Context
             );
 
         }
+
+
+
+
+    }
+
+
+    /** @And sleep */
+    public function sleep()
+    {
+
+        sleep(5);
 
 
 

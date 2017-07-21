@@ -6,7 +6,7 @@ Feature: Testing Web
   Scenario: check Register
 
     Given I am on "/register"
-    
+
     When I fill in "name" with "amine_2"
     When I fill in "email" with "amine_2@gmail.com"
     When I fill in "password" with "azerty"
@@ -35,10 +35,9 @@ Feature: Testing Web
 
     Given I am logged in
     Given I am on "/home"
+
     And I press "logout"
     Then the url should match "/"
-
-
 
 
 
@@ -46,6 +45,13 @@ Feature: Testing Web
   Scenario:  reset Data
 
     Then I remove the  user with mail "amine_2@gmail.com"
+
+
+
+
+
+
+
 
 
 
