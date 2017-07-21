@@ -14,6 +14,9 @@ use Ulff\BehatRestApiExtension\Context\RestApiContext;
 
 
 
+
+
+
 class FeatureContext extends RestApiContext implements Context
 {
 
@@ -22,13 +25,24 @@ class FeatureContext extends RestApiContext implements Context
 
 
     /**
-     * Initializes context.
-     * Every scenario gets its own context object.
-     *
-     * @param array $parameters context parameters (set them up through behat.yml)
+     * @When /^I press something by class "([^"]*)"$/
      */
+    public function iPressSomethingByClass($class)
+    {
+        $class = ".".$class;
+        $jsCond = "$('".$class."').length > 0";
+        $this->getSession()->wait(5000, $jsCond);
+        $this->getSession()->getPage()->find("css", $class)->click();
+    }
 
 
+    /**
+     * @When /^wait for the page to be loaded$/
+     */
+    public function waitForThePageToBeLoaded()
+    {
+        $this->getSession()->wait(10000, "document.readyState === 'complete'");
+    }
 
     public function iMakeRequest($method, $uri)
     {
@@ -70,10 +84,6 @@ class FeatureContext extends RestApiContext implements Context
 
        $array = json_decode($json);
 
-
-
-
-      //  dd($array->user);
 
         $userObject = new stdClass();
         $userObject->id = "test";

@@ -1,12 +1,18 @@
 default:
     extensions:
 
-        Laracasts\Behat\ServiceContainer\BehatExtension: ~
-        Ulff\BehatRestApiExtension\ServiceContainer\BehatRestApiExtension: ~
 
 
         Behat\MinkExtension\ServiceContainer\MinkExtension:
-            default_session: laravel
+            goutte: ~
+            selenium2: ~
             base_url: http://localhost:8000/
-            laravel: ~
+
+
+
+
+
+
+
+
 
