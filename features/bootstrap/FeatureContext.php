@@ -7,14 +7,10 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\MinkContext;
 use GuzzleHttp\Client;
+use App\User;
 
 
 use Ulff\BehatRestApiExtension\Context\RestApiContext;
-
-
-
-
-
 
 
 class FeatureContext extends RestApiContext implements Context
@@ -22,27 +18,9 @@ class FeatureContext extends RestApiContext implements Context
 
 
     private $output;
+    public static $loggedMail;
 
 
-    /**
-     * @When /^I press something by class "([^"]*)"$/
-     */
-    public function iPressSomethingByClass($class)
-    {
-        $class = ".".$class;
-        $jsCond = "$('".$class."').length > 0";
-        $this->getSession()->wait(5000, $jsCond);
-        $this->getSession()->getPage()->find("css", $class)->click();
-    }
-
-
-    /**
-     * @When /^wait for the page to be loaded$/
-     */
-    public function waitForThePageToBeLoaded()
-    {
-        $this->getSession()->wait(10000, "document.readyState === 'complete'");
-    }
 
     public function iMakeRequest($method, $uri)
     {
@@ -82,7 +60,7 @@ class FeatureContext extends RestApiContext implements Context
     {
 
 
-       $array = json_decode($json);
+        $array = json_decode($json);
 
 
         $userObject = new stdClass();
@@ -105,6 +83,75 @@ class FeatureContext extends RestApiContext implements Context
         }
     }
 
+
+    /** @Then /^I remove the  user with mail "(?P<string>(?:[^"]|\\")*)"$/ */
+    public function iRemoveTheUserWithMail($string)
+    {
+
+        $user = User::where("email", $string)->first();
+        $isRemoved = false;
+        if ($user) {
+
+            $isRemoved = $user->delete();
+        }
+
+
+        if (!$user || !$isRemoved) {
+            throw new Exception(
+                "Actual output is:\n" . $this->output
+            );
+        }
+    }
+
+    /** @Then /^I am logged In with "(?P<string>(?:[^"]|\\")*)"$/ */
+    public function imLoggedInWith($string)
+    {
+
+        self::$loggedMail = $string;
+        $user = User::where("email", self::$loggedMail)->first();
+
+
+        if ($user) {
+
+            \Illuminate\Support\Facades\Auth::loginUsingId($user->id);
+
+        }else{
+
+            throw new Exception(
+                "Actual output is:\n" . $this->output
+            );
+
+        }
+
+
+
+
+    }
+
+    /** @Then I am logged in */
+    public function login()
+    {
+
+
+        $user = User::where("email", self::$loggedMail)->first();
+
+
+        if ($user) {
+
+            \Illuminate\Support\Facades\Auth::loginUsingId($user->id);
+
+        }else{
+
+            throw new Exception(
+                "Actual output is:\n" . $this->output
+            );
+
+        }
+
+
+
+
+    }
 
     /** @Then /^The Object must contain "(?P<string>(?:[^"]|\\")*)"$/ */
     public function theObjectMustContain($string)
